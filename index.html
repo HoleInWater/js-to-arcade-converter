@@ -545,6 +545,13 @@
         };
 
         // ==================== EVENT LISTENERS ====================
+        
+        // Check JSZip loaded
+        if (typeof JSZip === 'undefined') {
+            console.error('JSZip not loaded! Loading from fallback...');
+            document.write('<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"><\/script>');
+        }
+        
         elements.zipInput.addEventListener('change', handleZipUpload);
         elements.convertBtn.addEventListener('click', convertCode);
         document.getElementById('copyAllBtn').addEventListener('click', copyAll);
@@ -559,12 +566,19 @@
             const file = event.target.files[0];
             if (!file) return;
             
+            console.log('File selected:', file.name, file.size);
+            
             updateProgress(0, 'Loading ZIP...');
-            elements.fileInfo.textContent = `Loaded: ${file.name}`;
+            elements.fileInfo.textContent = `Loading: ${file.name}...`;
             elements.fileInfo.classList.add('visible');
 
             try {
+                if (typeof JSZip === 'undefined') {
+                    throw new Error('JSZip library not loaded. Check your internet connection.');
+                }
+                
                 zipData = await JSZip.loadAsync(file);
+                console.log('ZIP loaded, files:', Object.keys(zipData.files).length);
                 let combinedJs = '';
                 let htmlContent = '';
                 let jsFileCount = 0;
@@ -590,8 +604,10 @@
                 updateProgress(100, 'Ready to convert');
                 setTimeout(() => elements.progressBar.classList.remove('visible'), 500);
             } catch (error) {
-                alert('Error: ' + error.message);
+                console.error('ZIP Error:', error);
+                alert('Error loading ZIP: ' + error.message + '\n\nCheck the browser console (F12) for details.');
                 elements.progressBar.classList.remove('visible');
+                elements.fileInfo.textContent = 'Error: ' + error.message;
             }
         }
 
