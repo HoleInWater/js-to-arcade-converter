@@ -988,13 +988,25 @@ namespace config {
 }
 
 `;
+            // Add player sprite creation
+            output += `
+// Player sprite - use from images.ts or create placeholder
+let playerSprite = sprites.create(img\`
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+    . . . . . . . . . . . . . . . . 
+\`, SpriteKind.Player);
+
+`;
+
             // Add controller conversion
             if (detectedPatterns.some(p => p.type === 'input')) {
                 output += `
 // Controller input
 controller.moveSprite(playerSprite, config.moveSpeed, config.moveSpeed);
 
-controller.onEvent(ControllerButtonEvent.Pressed, ControllerButton.A, function () {
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     // Action button - customize
 });
 
